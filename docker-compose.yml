@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: sale_mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: xxxx
+      MARIADB_USER: user
+      MARIADB_PASSWORD: xxxxxx
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - sale_network
+
+  backend:
+    image: dockerhub.jzhangluo.com/javaee/server:latest
+    container_name: sale_backend
+    restart: always
+    depends_on:
+      - mariadb
+    environment:
+      # Override DB configuration to point to the container
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/sale?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8&useSSL=false
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: xxxxxxx
+      # Enable initialization from schema.sql/data.sql packaged in the jar
+      SPRING_SQL_INIT_MODE: always
+    networks:
+      - sale_network
+
+  frontend:
+    image: dockerhub.jzhangluo.com/javaee/front:lastest
+    container_name: sale_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - sale_network
+
+volumes:
+  mariadb_data:
+
+networks:
+  sale_network:
+    driver: bridge
