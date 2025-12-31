@@ -7,7 +7,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+//
 @Data
 @TableName("seckill_order")
 public class SeckillOrder {
